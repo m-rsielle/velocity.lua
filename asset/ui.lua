@@ -28,8 +28,10 @@ local palette = {
         surface    = Color3.fromRGB(30, 30, 38),   -- panels/sectors
         shadow     = Color3.fromRGB(16, 16, 24),   -- soft shadow
         nav        = Color3.fromRGB(22, 22, 30),   -- sidebar
+        nav2       = Color3.fromRGB(26, 26, 36),   -- sidebar gradient start
         navHover   = Color3.fromRGB(32, 32, 44),   -- hover state
         navActive  = Color3.fromRGB(42, 38, 56),   -- selected tab
+        navActive2 = Color3.fromRGB(48, 44, 60),   -- selected gradient start
     },
     text = {
         primary = Color3.fromRGB(235, 235, 245),
@@ -89,8 +91,10 @@ local function buildThemeFromPalette(p)
 
         -- Nav
         navcolor = p.base.nav,
+        navcolor2 = p.base.nav2,
         navhover = p.base.navHover,
         navactive = p.base.navActive,
+        navactive2 = p.base.navActive2,
         navtext = Color3.fromRGB(210, 210, 225),
         
         -- Buttons
@@ -498,34 +502,52 @@ function library:CreateWindow(name, size, hidebutton)
         tab.TabPadding.PaddingLeft = UDim.new(0, 16)
         tab.TabPadding.PaddingRight = UDim.new(0, 10)
 
-        tab.Highlight = Instance.new("Frame", tab.TabButton)
-        tab.Highlight.Name = "highlight"
-        tab.Highlight.AnchorPoint = Vector2.new(0, 0)
-        tab.Highlight.Position = UDim2.fromOffset(-8, 4)
-        tab.Highlight.Size = UDim2.new(0, 3, 1, -8)
-        tab.Highlight.BorderSizePixel = 0
-        tab.Highlight.BackgroundColor3 = window.theme.accentcolor
-        tab.Highlight.Visible = false
+        tab.NavGradient = Instance.new("UIGradient", tab.TabButton)
+        tab.NavGradient.Rotation = 90
+        tab.selected = false
+
+        local function applyTabVisual(selected, hovered)
+            tab.selected = selected
+            local colorTop, colorBottom
+            if selected then
+                colorTop = window.theme.navactive2
+                colorBottom = window.theme.navactive
+            elseif hovered then
+                colorTop = window.theme.navcolor2
+                colorBottom = window.theme.navhover
+            else
+                colorTop = window.theme.navcolor2
+                colorBottom = window.theme.navcolor
+            end
+            tab.TabButton.BackgroundColor3 = colorBottom
+            tab.NavGradient.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, colorTop),
+                ColorSequenceKeypoint.new(1, colorBottom)
+            })
+            tab.TabButton.TextColor3 = selected and window.theme.accentcolor or window.theme.navtext
+        end
+
         updateevent.Event:Connect(function(theme)
             tab.TabButton.TextColor3 = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.navtext
             tab.TabButton.Font = theme.font
             tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 24, 32)
             tab.TabButton.TextSize = theme.fontsize
-            tab.TabButton.BackgroundColor3 = tab.TabButton.Name == "SelectedTab" and theme.navactive or theme.navcolor
-            tab.Highlight.BackgroundColor3 = theme.accentcolor
+            applyTabVisual(tab.TabButton.Name == "SelectedTab", false)
         end)
         tab.TabButton.AutoButtonColor = false
         tab.TabButton.BackgroundTransparency = 0
         tab.TabButton.MouseEnter:Connect(function()
             if tab.TabButton.Name ~= "SelectedTab" then
-                tab.TabButton.BackgroundColor3 = window.theme.navhover
+                applyTabVisual(false, true)
             end
         end)
         tab.TabButton.MouseLeave:Connect(function()
             if tab.TabButton.Name ~= "SelectedTab" then
-                tab.TabButton.BackgroundColor3 = window.theme.navcolor
+                applyTabVisual(false, false)
             end
         end)
+
+        tab.applyTabVisual = applyTabVisual
 
         local contentWidth = window.size.X.Offset - window.sidebarWidth - 12
 
@@ -587,15 +609,13 @@ function library:CreateWindow(name, size, hidebutton)
                     v.TabButton.Name = "Tab"
                     v.Left.Visible = false
                     v.Right.Visible = false
-                    v.TabButton.BackgroundColor3 = window.theme.navcolor
-                    if v.Highlight then v.Highlight.Visible = false end
+                    if v.applyTabVisual then v.applyTabVisual(false, false) end
                 end
             end
 
             tab.TabButton.TextColor3 = window.theme.accentcolor
             tab.TabButton.Name = "SelectedTab"
-            tab.TabButton.BackgroundColor3 = window.theme.navactive
-            if tab.Highlight then tab.Highlight.Visible = true end
+            if tab.applyTabVisual then tab.applyTabVisual(true, false) end
             tab.Right.Visible = true
             tab.Left.Visible = true
             block = false
