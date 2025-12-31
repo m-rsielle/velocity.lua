@@ -27,6 +27,9 @@ local palette = {
         topAlt     = Color3.fromRGB(28, 28, 36),   -- no gradient difference
         surface    = Color3.fromRGB(30, 30, 38),   -- panels/sectors
         shadow     = Color3.fromRGB(16, 16, 24),   -- soft shadow
+        nav        = Color3.fromRGB(24, 24, 32),   -- sidebar
+        navHover   = Color3.fromRGB(30, 30, 40),   -- hover state
+        navActive  = Color3.fromRGB(34, 32, 46),   -- selected tab
     },
     text = {
         primary = Color3.fromRGB(235, 235, 245),
@@ -83,6 +86,12 @@ local function buildThemeFromPalette(p)
 
         -- Slightly raised background elements (sectors, tabs, etc.)
         sectorcolor = p.base.surface,
+
+        -- Nav
+        navcolor = p.base.nav,
+        navhover = p.base.navHover,
+        navactive = p.base.navActive,
+        navtext = p.text.muted,
         
         -- Buttons
         buttoncolor = p.control.button,
@@ -255,7 +264,7 @@ function library:CreateWindow(name, size, hidebutton)
     window.size = UDim2.fromOffset(size.X, size.Y) or UDim2.fromOffset(492, 598)
     window.hidebutton = hidebutton or Enum.KeyCode.RightShift
     window.theme = library.theme
-    window.sidebarWidth = 140
+    window.sidebarWidth = 170
     table.insert(library.windows, window)
 
     local updateevent = Instance.new("BindableEvent")
@@ -420,9 +429,9 @@ function library:CreateWindow(name, size, hidebutton)
     window.TabList.Position = UDim2.fromOffset(0, window.TopBar.AbsoluteSize.Y)
     window.TabList.Size = UDim2.fromOffset(window.sidebarWidth, window.size.Y.Offset - window.TopBar.AbsoluteSize.Y)
     window.TabList.BorderSizePixel = 0
-    window.TabList.BackgroundColor3 = window.theme.topcolor
+    window.TabList.BackgroundColor3 = window.theme.navcolor
     updateevent.Event:Connect(function(theme)
-        window.TabList.BackgroundColor3 = theme.topcolor
+        window.TabList.BackgroundColor3 = theme.navcolor
     end)
 
     window.BlackLine = Instance.new("Frame", window.Frame)
@@ -436,20 +445,14 @@ function library:CreateWindow(name, size, hidebutton)
         window.BlackLine.BackgroundColor3 = theme.outlinecolor2
     end)
 
-    window.Line = Instance.new("Frame", window.TabList)
-    window.Line.Name = "line"
-    window.Line.Position = UDim2.fromOffset(window.sidebarWidth - 2, 0)
-    window.Line.Size = UDim2.fromOffset(2, 20)
-    window.Line.BorderSizePixel = 0
-    window.Line.BackgroundColor3 = window.theme.accentcolor
-    updateevent.Event:Connect(function(theme)
-        window.Line.BackgroundColor3 = theme.accentcolor
-    end)
-
     window.ListLayout = Instance.new("UIListLayout", window.TabList)
     window.ListLayout.FillDirection = Enum.FillDirection.Vertical
     window.ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     window.ListLayout.Padding = UDim.new(0, 6)
+
+    window.TabListPadding = Instance.new("UIPadding", window.TabList)
+    window.TabListPadding.PaddingTop = UDim.new(0, 10)
+    window.TabListPadding.PaddingLeft = UDim.new(0, 10)
 
     function window:RefreshLayout()
         local topH = window.TopBar.Size.Y.Offset
@@ -479,22 +482,45 @@ function library:CreateWindow(name, size, hidebutton)
         tab.name = name or ""
 
         tab.TabButton = Instance.new("TextButton", window.TabList)
-        tab.TabButton.TextColor3 = window.theme.tabstextcolor
+        tab.TabButton.TextColor3 = window.theme.navtext
         tab.TabButton.Text = tab.name
         tab.TabButton.AutoButtonColor = false
         tab.TabButton.Font = window.theme.font
         tab.TabButton.TextYAlignment = Enum.TextYAlignment.Center
         tab.TabButton.TextXAlignment = Enum.TextXAlignment.Left
-        tab.TabButton.BackgroundTransparency = 1
+        tab.TabButton.BackgroundTransparency = 0
         tab.TabButton.BorderSizePixel = 0
         tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 12, 28)
         tab.TabButton.Name = tab.name
         tab.TabButton.TextSize = window.theme.fontsize
+        tab.TabButton.BackgroundColor3 = window.theme.navcolor
+        tab.Highlight = Instance.new("Frame", tab.TabButton)
+        tab.Highlight.Name = "highlight"
+        tab.Highlight.AnchorPoint = Vector2.new(0, 0)
+        tab.Highlight.Position = UDim2.fromOffset(0, 0)
+        tab.Highlight.Size = UDim2.new(0, 3, 1, 0)
+        tab.Highlight.BorderSizePixel = 0
+        tab.Highlight.BackgroundColor3 = window.theme.accentcolor
+        tab.Highlight.Visible = false
         updateevent.Event:Connect(function(theme)
-            tab.TabButton.TextColor3 = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.tabstextcolor
+            tab.TabButton.TextColor3 = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.navtext
             tab.TabButton.Font = theme.font
             tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 12, 28)
             tab.TabButton.TextSize = theme.fontsize
+            tab.TabButton.BackgroundColor3 = tab.TabButton.Name == "SelectedTab" and theme.navactive or theme.navcolor
+            tab.Highlight.BackgroundColor3 = theme.accentcolor
+        end)
+        tab.TabButton.AutoButtonColor = false
+        tab.TabButton.BackgroundTransparency = 0
+        tab.TabButton.MouseEnter:Connect(function()
+            if tab.TabButton.Name ~= "SelectedTab" then
+                tab.TabButton.BackgroundColor3 = window.theme.navhover
+            end
+        end)
+        tab.TabButton.MouseLeave:Connect(function()
+            if tab.TabButton.Name ~= "SelectedTab" then
+                tab.TabButton.BackgroundColor3 = window.theme.navcolor
+            end
         end)
 
         local contentWidth = window.size.X.Offset - window.sidebarWidth - 12
@@ -549,27 +575,25 @@ function library:CreateWindow(name, size, hidebutton)
 
         local block = false
         function tab:SelectTab()
-            repeat 
-                wait()
-            until block == false
-
+            if block then return end
             block = true
             for i,v in pairs(window.Tabs) do
                 if v ~= tab then
-                    v.TabButton.TextColor3 = window.theme.tabstextcolor
+                    v.TabButton.TextColor3 = window.theme.navtext
                     v.TabButton.Name = "Tab"
                     v.Left.Visible = false
                     v.Right.Visible = false
+                    v.TabButton.BackgroundColor3 = window.theme.navcolor
+                    if v.Highlight then v.Highlight.Visible = false end
                 end
             end
 
             tab.TabButton.TextColor3 = window.theme.accentcolor
             tab.TabButton.Name = "SelectedTab"
+            tab.TabButton.BackgroundColor3 = window.theme.navactive
+            if tab.Highlight then tab.Highlight.Visible = true end
             tab.Right.Visible = true
             tab.Left.Visible = true
-            local targetY = tab.TabButton.AbsolutePosition.Y - window.TabList.AbsolutePosition.Y
-            window.Line:TweenSizeAndPosition(UDim2.fromOffset(2, tab.TabButton.AbsoluteSize.Y), UDim2.fromOffset(window.sidebarWidth - 2, targetY), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15)
-            wait(0.2)
             block = false
         end
     
@@ -589,11 +613,13 @@ function library:CreateWindow(name, size, hidebutton)
             sector.name = name or ""
             sector.side = side:lower() or "left"
             
+            local paneWidth = ((window.size.X.Offset - window.sidebarWidth - 12) / 2)
+
             sector.Main = Instance.new("Frame", sector.side == "left" and tab.Left or tab.Right) 
             sector.Main.Name = sector.name:gsub(" ", "") .. "Sector"
             sector.Main.BorderSizePixel = 0
             sector.Main.ZIndex = 4
-            sector.Main.Size = UDim2.fromOffset(window.size.X.Offset / 2 - 17, 20)
+            sector.Main.Size = UDim2.fromOffset(paneWidth - 14, 20)
             sector.Main.BackgroundColor3 = window.theme.sectorcolor
             --sector.Main.Position = sector.side == "left" and UDim2.new(0, 11, 0, 12) or UDim2.new(0, window.size.X.Offset - sector.Main.AbsoluteSize.X - 11, 0, 12)
             updateevent.Event:Connect(function(theme)
@@ -702,7 +728,8 @@ function library:CreateWindow(name, size, hidebutton)
             table.insert(sector.side:lower() == "left" and tab.SectorsLeft or tab.SectorsRight, sector)
 
             function sector:FixSize()
-                sector.Main.Size = UDim2.fromOffset(window.size.X.Offset / 2 - 17, sector.ListLayout.AbsoluteContentSize.Y + 22)
+                local paneWidth = ((window.size.X.Offset - window.sidebarWidth - 12) / 2)
+                sector.Main.Size = UDim2.fromOffset(paneWidth - 14, sector.ListLayout.AbsoluteContentSize.Y + 22)
                 local sizeleft, sizeright = 0, 0
                 for i,v in pairs(tab.SectorsLeft) do
                     sizeleft = sizeleft + v.Main.AbsoluteSize.Y
