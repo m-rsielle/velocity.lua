@@ -62,7 +62,7 @@ local function buildThemeFromPalette(p)
         cursorimg = p.assets.cursorImg,
 
         -- Unified main background (titlebar + overall UI)
-        backgroundcolor = p.base.background,
+        backgroundcolor = p.base.top, -- force body to match titlebar
         topcolor = p.base.top,
         topcolor2 = p.base.topAlt,
 
@@ -310,10 +310,10 @@ function library:CreateWindow(name, size, hidebutton)
     window.Frame.Size = window.size
     window.Frame.AutoButtonColor = false
     window.Frame.Text = ""
-    window.Frame.BackgroundColor3 = window.theme.backgroundcolor
+    window.Frame.BackgroundColor3 = window.theme.topcolor
     window.Frame.AnchorPoint = Vector2.new(0.5, 0.5)
     updateevent.Event:Connect(function(theme)
-        window.Frame.BackgroundColor3 = theme.backgroundcolor
+        window.Frame.BackgroundColor3 = theme.topcolor
     end)
 
     uis.InputBegan:Connect(function(key)
@@ -483,13 +483,13 @@ function library:CreateWindow(name, size, hidebutton)
         tab.Left.BorderSizePixel = 0
         tab.Left.Size = UDim2.fromOffset(window.size.X.Offset / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y + 1))
         tab.Left.BackgroundTransparency = 0
-        tab.Left.BackgroundColor3 = window.theme.backgroundcolor
+        tab.Left.BackgroundColor3 = window.theme.topcolor
         tab.Left.Visible = false
         tab.Left.ScrollBarThickness = 0
         tab.Left.ScrollingDirection = "Y"
         tab.Left.Position = window.BlackLine.Position + UDim2.fromOffset(0, 1)
         updateevent.Event:Connect(function(theme)
-            tab.Left.BackgroundColor3 = theme.backgroundcolor
+            tab.Left.BackgroundColor3 = theme.topcolor
         end)
 
         tab.LeftListLayout = Instance.new("UIListLayout", tab.Left)
@@ -510,10 +510,10 @@ function library:CreateWindow(name, size, hidebutton)
         tab.Right.BorderSizePixel = 0
         tab.Right.Size = UDim2.fromOffset(window.size.X.Offset / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y + 1))
         tab.Right.BackgroundTransparency = 0
-        tab.Right.BackgroundColor3 = window.theme.backgroundcolor
+        tab.Right.BackgroundColor3 = window.theme.topcolor
         tab.Right.Position = tab.Left.Position + UDim2.fromOffset(tab.Left.AbsoluteSize.X, 0)
         updateevent.Event:Connect(function(theme)
-            tab.Right.BackgroundColor3 = theme.backgroundcolor
+            tab.Right.BackgroundColor3 = theme.topcolor
         end)
 
         tab.RightListLayout = Instance.new("UIListLayout", tab.Right)
