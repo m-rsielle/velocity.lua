@@ -24,7 +24,7 @@ library.theme = {
     font = Enum.Font.Code,
 
     -- Main dark base
-    backgroundcolor = Color3.fromRGB(36, 36, 44),        -- Lighter slate for readability
+    backgroundcolor = Color3.fromRGB(46, 46, 58),        -- Base fill (matches top bar)
 
     -- Text colors
     tabstextcolor = Color3.fromRGB(224, 224, 255),       -- Light purple-tinted white (#E0E0FF)
@@ -35,16 +35,16 @@ library.theme = {
     -- Borders and outlines
     bordercolor = Color3.fromRGB(42, 26, 58),            -- Deep purple-gray (#2A1A3A)
     outlinecolor = Color3.fromRGB(42, 26, 58),
-    outlinecolor2 = Color3.fromRGB(0, 0, 0),              -- Pure black for inner shadows
+    outlinecolor2 = Color3.fromRGB(16, 16, 24),          -- Softer shadow to avoid pitch black edges
 
     -- Purple accents
     accentcolor = Color3.fromRGB(138, 75, 255),          -- Main vibrant purple (#8A4BFF)
     accentcolor2 = Color3.fromRGB(165, 110, 255),         -- Lighter purple for hover/active (#A56EFF)
 
     -- Panels and sectors
-    sectorcolor = Color3.fromRGB(30, 30, 36),            -- Slightly elevated panel (#1E1E24)
-    topcolor = Color3.fromRGB(36, 36, 44),                -- Top bar (#24242C)
-    topcolor2 = Color3.fromRGB(36, 36, 44),
+    sectorcolor = Color3.fromRGB(38, 38, 48),            -- Slightly elevated panel
+    topcolor = Color3.fromRGB(46, 46, 58),               -- Top bar (same as base fill)
+    topcolor2 = Color3.fromRGB(46, 46, 58),
 
     -- Buttons
     buttoncolor = Color3.fromRGB(30, 20, 50),            -- Dark purple-gray base
@@ -316,11 +316,12 @@ function library:CreateWindow(name, size, hidebutton)
     window.TopBar.Name = "top"
     window.TopBar.Size = UDim2.fromOffset(window.size.X.Offset, window.theme.topheight)
     window.TopBar.BorderSizePixel = 0
-    window.TopBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    window.TopBar.BackgroundColor3 = window.theme.topcolor
     window.TopBar.InputBegan:Connect(dragstart)
     window.TopBar.InputChanged:Connect(dragend)
     updateevent.Event:Connect(function(theme)
         window.TopBar.Size = UDim2.fromOffset(window.size.X.Offset, theme.topheight)
+        window.TopBar.BackgroundColor3 = theme.topcolor
     end)
 
     window.TopGradient = Instance.new("UIGradient", window.TopBar)
@@ -358,11 +359,14 @@ function library:CreateWindow(name, size, hidebutton)
 
     window.TabList = Instance.new("Frame", window.TopBar)
     window.TabList.Name = "tablist"
-    window.TabList.BackgroundTransparency = 1
+    window.TabList.BackgroundTransparency = 0
     window.TabList.Position = UDim2.fromOffset(0, window.TopBar.AbsoluteSize.Y / 2 + 1)
     window.TabList.Size = UDim2.fromOffset(window.size.X.Offset, window.TopBar.AbsoluteSize.Y / 2)
     window.TabList.BorderSizePixel = 0
-    window.TabList.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    window.TabList.BackgroundColor3 = window.theme.topcolor
+    updateevent.Event:Connect(function(theme)
+        window.TabList.BackgroundColor3 = theme.topcolor
+    end)
 
     window.TabList.InputBegan:Connect(dragstart)
     window.TabList.InputChanged:Connect(dragend)
@@ -425,11 +429,15 @@ function library:CreateWindow(name, size, hidebutton)
         tab.Left.Name = "leftside"
         tab.Left.BorderSizePixel = 0
         tab.Left.Size = UDim2.fromOffset(window.size.X.Offset / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y + 1))
-        tab.Left.BackgroundTransparency = 1
+        tab.Left.BackgroundTransparency = 0
+        tab.Left.BackgroundColor3 = window.theme.backgroundcolor
         tab.Left.Visible = false
         tab.Left.ScrollBarThickness = 0
         tab.Left.ScrollingDirection = "Y"
         tab.Left.Position = window.BlackLine.Position + UDim2.fromOffset(0, 1)
+        updateevent.Event:Connect(function(theme)
+            tab.Left.BackgroundColor3 = theme.backgroundcolor
+        end)
 
         tab.LeftListLayout = Instance.new("UIListLayout", tab.Left)
         tab.LeftListLayout.FillDirection = Enum.FillDirection.Vertical
@@ -448,8 +456,12 @@ function library:CreateWindow(name, size, hidebutton)
         tab.Right.Visible = false
         tab.Right.BorderSizePixel = 0
         tab.Right.Size = UDim2.fromOffset(window.size.X.Offset / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y + 1))
-        tab.Right.BackgroundTransparency = 1
+        tab.Right.BackgroundTransparency = 0
+        tab.Right.BackgroundColor3 = window.theme.backgroundcolor
         tab.Right.Position = tab.Left.Position + UDim2.fromOffset(tab.Left.AbsoluteSize.X, 0)
+        updateevent.Event:Connect(function(theme)
+            tab.Right.BackgroundColor3 = theme.backgroundcolor
+        end)
 
         tab.RightListLayout = Instance.new("UIListLayout", tab.Right)
         tab.RightListLayout.FillDirection = Enum.FillDirection.Vertical
