@@ -24,7 +24,7 @@ library.theme = {
     font = Enum.Font.Code,
 
     -- Main dark base
-    backgroundcolor = Color3.fromRGB(26, 26, 31),        -- Match top bar tone
+    backgroundcolor = Color3.fromRGB(36, 36, 44),        -- Lighter slate for readability
 
     -- Text colors
     tabstextcolor = Color3.fromRGB(224, 224, 255),       -- Light purple-tinted white (#E0E0FF)
@@ -42,9 +42,9 @@ library.theme = {
     accentcolor2 = Color3.fromRGB(165, 110, 255),         -- Lighter purple for hover/active (#A56EFF)
 
     -- Panels and sectors
-    sectorcolor = Color3.fromRGB(26, 26, 31),            -- Slightly elevated panel (#1A1A1F)
-    topcolor = Color3.fromRGB(26, 26, 31),                -- Top bar (#1A1A1F)
-    topcolor2 = Color3.fromRGB(26, 26, 31),
+    sectorcolor = Color3.fromRGB(30, 30, 36),            -- Slightly elevated panel (#1E1E24)
+    topcolor = Color3.fromRGB(36, 36, 44),                -- Top bar (#24242C)
+    topcolor2 = Color3.fromRGB(36, 36, 44),
 
     -- Buttons
     buttoncolor = Color3.fromRGB(30, 20, 50),            -- Dark purple-gray base
@@ -257,10 +257,10 @@ function library:CreateWindow(name, size, hidebutton)
     window.Frame.Size = window.size
     window.Frame.AutoButtonColor = false
     window.Frame.Text = ""
-    window.Frame.BackgroundColor3 = window.theme.topcolor
+    window.Frame.BackgroundColor3 = window.theme.backgroundcolor
     window.Frame.AnchorPoint = Vector2.new(0.5, 0.5)
     updateevent.Event:Connect(function(theme)
-        window.Frame.BackgroundColor3 = theme.topcolor
+        window.Frame.BackgroundColor3 = theme.backgroundcolor
     end)
 
     uis.InputBegan:Connect(function(key)
