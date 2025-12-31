@@ -24,7 +24,7 @@ library.theme = {
     font = Enum.Font.Code,
 
     -- Main dark base
-    backgroundcolor = Color3.fromRGB(18, 18, 23),        -- Near-black background (#0A0A0A)
+    backgroundcolor = Color3.fromRGB(18, 18, 23),        -- Match top bar tone
 
     -- Text colors
     tabstextcolor = Color3.fromRGB(224, 224, 255),       -- Light purple-tinted white (#E0E0FF)
@@ -257,10 +257,10 @@ function library:CreateWindow(name, size, hidebutton)
     window.Frame.Size = window.size
     window.Frame.AutoButtonColor = false
     window.Frame.Text = ""
-    window.Frame.BackgroundColor3 = window.theme.backgroundcolor
+    window.Frame.BackgroundColor3 = window.theme.topcolor
     window.Frame.AnchorPoint = Vector2.new(0.5, 0.5)
     updateevent.Event:Connect(function(theme)
-        window.Frame.BackgroundColor3 = theme.backgroundcolor
+        window.Frame.BackgroundColor3 = theme.topcolor
     end)
 
     uis.InputBegan:Connect(function(key)
