@@ -22,9 +22,9 @@ local camera = game.Workspace.CurrentCamera
 -- Color palette system (edit once, everything derives from here)
 local palette = {
     base = {
-        background = Color3.fromRGB(24, 24, 30),   -- main canvas
+        background = Color3.fromRGB(28, 28, 36),   -- main canvas matches titlebar
         top        = Color3.fromRGB(28, 28, 36),   -- titlebar
-        topAlt     = Color3.fromRGB(22, 22, 30),   -- subtle gradient partner
+        topAlt     = Color3.fromRGB(28, 28, 36),   -- no gradient difference
         surface    = Color3.fromRGB(30, 30, 38),   -- panels/sectors
         shadow     = Color3.fromRGB(16, 16, 24),   -- soft shadow
     },
