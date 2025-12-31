@@ -24,7 +24,7 @@ library.theme = {
     font = Enum.Font.Code,
 
     -- Main dark base
-    backgroundcolor = Color3.fromRGB(10, 10, 10),        -- Near-black background (#0A0A0A)
+    backgroundcolor = Color3.fromRGB(18, 18, 23),        -- Near-black background (#0A0A0A)
 
     -- Text colors
     tabstextcolor = Color3.fromRGB(224, 224, 255),       -- Light purple-tinted white (#E0E0FF)
