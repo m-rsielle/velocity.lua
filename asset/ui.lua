@@ -495,14 +495,14 @@ function library:CreateWindow(name, size, hidebutton)
         tab.TabButton.TextSize = window.theme.fontsize
         tab.TabButton.BackgroundColor3 = window.theme.navcolor
         tab.TabPadding = Instance.new("UIPadding", tab.TabButton)
-        tab.TabPadding.PaddingLeft = UDim.new(0, 18)
+        tab.TabPadding.PaddingLeft = UDim.new(0, 16)
         tab.TabPadding.PaddingRight = UDim.new(0, 10)
 
         tab.Highlight = Instance.new("Frame", tab.TabButton)
         tab.Highlight.Name = "highlight"
         tab.Highlight.AnchorPoint = Vector2.new(0, 0)
-        tab.Highlight.Position = UDim2.fromOffset(0, 4)
-        tab.Highlight.Size = UDim2.new(0, 2, 1, -8)
+        tab.Highlight.Position = UDim2.fromOffset(-4, 4)
+        tab.Highlight.Size = UDim2.new(0, 4, 1, -8)
         tab.Highlight.BorderSizePixel = 0
         tab.Highlight.BackgroundColor3 = window.theme.accentcolor
         tab.Highlight.Visible = false
