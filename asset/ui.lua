@@ -24,7 +24,7 @@ library.theme = {
     font = Enum.Font.Code,
 
     -- Main dark base
-    backgroundcolor = Color3.fromRGB(18, 18, 23),        -- Match top bar tone
+    backgroundcolor = Color3.fromRGB(26, 26, 31),        -- Match top bar tone
 
     -- Text colors
     tabstextcolor = Color3.fromRGB(224, 224, 255),       -- Light purple-tinted white (#E0E0FF)
@@ -43,8 +43,8 @@ library.theme = {
 
     -- Panels and sectors
     sectorcolor = Color3.fromRGB(26, 26, 31),            -- Slightly elevated panel (#1A1A1F)
-    topcolor = Color3.fromRGB(18, 18, 23),                -- Top bar (#121212)
-    topcolor2 = Color3.fromRGB(18, 18, 23),
+    topcolor = Color3.fromRGB(26, 26, 31),                -- Top bar (#1A1A1F)
+    topcolor2 = Color3.fromRGB(26, 26, 31),
 
     -- Buttons
     buttoncolor = Color3.fromRGB(30, 20, 50),            -- Dark purple-gray base
