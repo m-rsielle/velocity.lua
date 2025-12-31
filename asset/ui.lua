@@ -22,37 +22,37 @@ library.theme = {
     fontsize = 15,
     titlesize = 18,
     font = Enum.Font.Code,
-    background = "rbxassetid://5553946656",  -- Your background image (kept if you still want it)
+    background = "rbxassetid://5553946656",
     tilesize = 90,
     cursor = false,
     cursorimg = "https://t0.rbxcdn.com/42f66da98c40252ee151326a82aab51f",
 
     -- Unified main background (titlebar + overall UI)
-    backgroundcolor = Color3.fromRGB(10, 10, 10),        -- Near-black (#0A0A0A) - used for main window
-    topcolor = Color3.fromRGB(10, 10, 10),               -- Same as background - titlebar matches perfectly
-    topcolor2 = Color3.fromRGB(10, 10, 10),              -- No gradient difference
+    backgroundcolor = Color3.fromRGB(30, 30, 40),        -- Deep slate base
+    topcolor = Color3.fromRGB(34, 34, 48),               -- Slight lift for titlebar
+    topcolor2 = Color3.fromRGB(28, 28, 40),              -- Gentle vertical gradient
 
     -- Text colors
-    tabstextcolor = Color3.fromRGB(224, 224, 255),       -- Light purple-white (#E0E0FF)
-    toptextcolor = Color3.fromRGB(224, 224, 255),        -- Same bright text on titlebar
-    itemscolor = Color3.fromRGB(160, 160, 208),          -- Muted purple-gray (#A0A0D0)
-    itemscolor2 = Color3.fromRGB(180, 180, 230),         -- Hover/selected
+    tabstextcolor = Color3.fromRGB(230, 230, 245),       -- Soft off-white
+    toptextcolor = Color3.fromRGB(230, 230, 245),        -- Match tabs
+    itemscolor = Color3.fromRGB(190, 190, 210),          -- Muted gray-lilac
+    itemscolor2 = Color3.fromRGB(210, 210, 230),         -- Hover/selected
 
     -- Borders & outlines
-    bordercolor = Color3.fromRGB(42, 26, 58),            -- Deep purple-gray (#2A1A3A)
-    outlinecolor = Color3.fromRGB(42, 26, 58),
-    outlinecolor2 = Color3.fromRGB(0, 0, 0),              -- Pure black shadow
+    bordercolor = Color3.fromRGB(54, 38, 82),            -- Desaturated plum
+    outlinecolor = Color3.fromRGB(54, 38, 82),
+    outlinecolor2 = Color3.fromRGB(18, 18, 26),          -- Soft shadow, not pitch black
 
     -- Purple accents
-    accentcolor = Color3.fromRGB(138, 75, 255),          -- Main purple (#8A4BFF)
-    accentcolor2 = Color3.fromRGB(165, 110, 255),         -- Hover/active (#A56EFF)
+    accentcolor = Color3.fromRGB(146, 101, 255),         -- Main purple pop
+    accentcolor2 = Color3.fromRGB(176, 136, 255),        -- Hover/active
 
     -- Slightly raised background elements (sectors, tabs, etc.)
-    sectorcolor = Color3.fromRGB(18, 15, 28),            -- Very subtle purple-tint elevation (#12121C)
+    sectorcolor = Color3.fromRGB(36, 36, 48),            -- Subtle elevation from base
     
-    -- Buttons (still darker than main for distinction)
-    buttoncolor = Color3.fromRGB(25, 18, 40),            -- Darker purple-gray
-    buttoncolor2 = Color3.fromRGB(40, 30, 65),           -- Hover lift
+    -- Buttons
+    buttoncolor = Color3.fromRGB(38, 30, 56),            -- Darker panel
+    buttoncolor2 = Color3.fromRGB(50, 40, 70),           -- Hover lift
 
     topheight = 48,
 }
