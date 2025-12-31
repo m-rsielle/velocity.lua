@@ -1,7 +1,8 @@
 -- insert troll face, memcorruptv2
 local library = { 
 	flags = { }, 
-	items = { } 
+	items = { }, 
+    windows = { }
 }
 
 -- Services
@@ -18,44 +19,91 @@ local player = players.LocalPlayer
 local mouse = player:GetMouse()
 local camera = game.Workspace.CurrentCamera
 
-library.theme = {
-    fontsize = 15,
-    titlesize = 18,
-    font = Enum.Font.Code,
-    background = "rbxassetid://5553946656",
-    tilesize = 90,
-    cursor = false,
-    cursorimg = "https://t0.rbxcdn.com/42f66da98c40252ee151326a82aab51f",
-
-    -- Unified main background (titlebar + overall UI)
-    backgroundcolor = Color3.fromRGB(30, 30, 40),        -- Deep slate base
-    topcolor = Color3.fromRGB(34, 34, 48),               -- Slight lift for titlebar
-    topcolor2 = Color3.fromRGB(28, 28, 40),              -- Gentle vertical gradient
-
-    -- Text colors
-    tabstextcolor = Color3.fromRGB(230, 230, 245),       -- Soft off-white
-    toptextcolor = Color3.fromRGB(230, 230, 245),        -- Match tabs
-    itemscolor = Color3.fromRGB(190, 190, 210),          -- Muted gray-lilac
-    itemscolor2 = Color3.fromRGB(210, 210, 230),         -- Hover/selected
-
-    -- Borders & outlines
-    bordercolor = Color3.fromRGB(54, 38, 82),            -- Desaturated plum
-    outlinecolor = Color3.fromRGB(54, 38, 82),
-    outlinecolor2 = Color3.fromRGB(18, 18, 26),          -- Soft shadow, not pitch black
-
-    -- Purple accents
-    accentcolor = Color3.fromRGB(146, 101, 255),         -- Main purple pop
-    accentcolor2 = Color3.fromRGB(176, 136, 255),        -- Hover/active
-
-    -- Slightly raised background elements (sectors, tabs, etc.)
-    sectorcolor = Color3.fromRGB(36, 36, 48),            -- Subtle elevation from base
-    
-    -- Buttons
-    buttoncolor = Color3.fromRGB(38, 30, 56),            -- Darker panel
-    buttoncolor2 = Color3.fromRGB(50, 40, 70),           -- Hover lift
-
-    topheight = 48,
+-- Color palette system (edit once, everything derives from here)
+local palette = {
+    base = {
+        background = Color3.fromRGB(24, 24, 30),   -- main canvas
+        top        = Color3.fromRGB(28, 28, 36),   -- titlebar
+        topAlt     = Color3.fromRGB(22, 22, 30),   -- subtle gradient partner
+        surface    = Color3.fromRGB(30, 30, 38),   -- panels/sectors
+        shadow     = Color3.fromRGB(16, 16, 24),   -- soft shadow
+    },
+    text = {
+        primary = Color3.fromRGB(235, 235, 245),
+        muted   = Color3.fromRGB(190, 190, 205),
+    },
+    accent = {
+        primary   = Color3.fromRGB(155, 120, 255),
+        secondary = Color3.fromRGB(185, 150, 255),
+    },
+    outline = {
+        strong = Color3.fromRGB(60, 48, 82),
+        soft   = Color3.fromRGB(18, 18, 26),
+    },
+    control = {
+        button      = Color3.fromRGB(35, 32, 48),
+        buttonHover = Color3.fromRGB(48, 44, 64),
+    },
+    assets = {
+        backgroundId = "rbxassetid://5553946656",
+        cursorImg = "https://t0.rbxcdn.com/42f66da98c40252ee151326a82aab51f",
+        tileSize = 90,
+    }
 }
+
+local function buildThemeFromPalette(p)
+    return {
+        fontsize = 15,
+        titlesize = 18,
+        font = Enum.Font.Code,
+        background = p.assets.backgroundId,
+        tilesize = p.assets.tileSize,
+        cursor = false,
+        cursorimg = p.assets.cursorImg,
+
+        -- Unified main background (titlebar + overall UI)
+        backgroundcolor = p.base.background,
+        topcolor = p.base.top,
+        topcolor2 = p.base.topAlt,
+
+        -- Text colors
+        tabstextcolor = p.text.primary,
+        toptextcolor = p.text.primary,
+        itemscolor = p.text.muted,
+        itemscolor2 = p.text.primary,
+
+        -- Borders & outlines
+        bordercolor = p.outline.strong,
+        outlinecolor = p.outline.strong,
+        outlinecolor2 = p.outline.soft,
+
+        -- Purple accents
+        accentcolor = p.accent.primary,
+        accentcolor2 = p.accent.secondary,
+
+        -- Slightly raised background elements (sectors, tabs, etc.)
+        sectorcolor = p.base.surface,
+        
+        -- Buttons
+        buttoncolor = p.control.button,
+        buttoncolor2 = p.control.buttonHover,
+
+        topheight = 48,
+    }
+end
+
+library.palette = palette
+library.theme = buildThemeFromPalette(palette)
+
+function library:SetPalette(newPalette)
+    library.palette = newPalette
+    library.theme = buildThemeFromPalette(newPalette)
+    for _, win in ipairs(library.windows) do
+        if win.UpdateTheme then
+            win:UpdateTheme(library.theme)
+        end
+    end
+end
 
 function library:CreateWatermark(name, position)
     local gamename = marketplaceservice:GetProductInfo(game.PlaceId).Name
@@ -207,6 +255,7 @@ function library:CreateWindow(name, size, hidebutton)
     window.size = UDim2.fromOffset(size.X, size.Y) or UDim2.fromOffset(492, 598)
     window.hidebutton = hidebutton or Enum.KeyCode.RightShift
     window.theme = library.theme
+    table.insert(library.windows, window)
 
     local updateevent = Instance.new("BindableEvent")
     function window:UpdateTheme(theme)
@@ -656,12 +705,13 @@ function library:CreateWindow(name, size, hidebutton)
                 button.Main.Name = "button"
                 button.Main.ZIndex = 5
                 button.Main.Size = UDim2.fromOffset(sector.Main.Size.X.Offset - 12, 14)
-                button.Main.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                button.Main.BackgroundColor3 = window.theme.buttoncolor
 
                 button.Gradient = Instance.new("UIGradient", button.Main)
                 button.Gradient.Rotation = 90
                 button.Gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, window.theme.buttoncolor), ColorSequenceKeypoint.new(1.00, window.theme.buttoncolor2) })
                 updateevent.Event:Connect(function(theme)
+                    button.Main.BackgroundColor3 = theme.buttoncolor
                     button.Gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, theme.buttoncolor), ColorSequenceKeypoint.new(1.00, theme.buttoncolor2) })
                 end)
 
@@ -767,7 +817,7 @@ function library:CreateWindow(name, size, hidebutton)
 
                 toggle.Main = Instance.new("TextButton", sector.Items)
                 toggle.Main.Name = "toggle"
-                toggle.Main.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                toggle.Main.BackgroundColor3 = window.theme.buttoncolor
                 toggle.Main.BorderColor3 = window.theme.outlinecolor
                 toggle.Main.BorderSizePixel = 0
                 toggle.Main.Size = UDim2.fromOffset(8, 8)
@@ -779,6 +829,8 @@ function library:CreateWindow(name, size, hidebutton)
                 toggle.Main.TextSize = 15
                 updateevent.Event:Connect(function(theme)
                     toggle.Main.BorderColor3 = theme.outlinecolor
+                    toggle.Main.BackgroundColor3 = theme.buttoncolor
+                    toggle.Gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, theme.buttoncolor), ColorSequenceKeypoint.new(1.00, theme.buttoncolor2) })
                 end)
 
                 toggle.BlackOutline2 = Instance.new("Frame", toggle.Main)
@@ -816,7 +868,7 @@ function library:CreateWindow(name, size, hidebutton)
 
                 toggle.Gradient = Instance.new("UIGradient", toggle.Main)
                 toggle.Gradient.Rotation = (22.5 * 13)
-                toggle.Gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 30, 30)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(45, 45, 45)) })
+                toggle.Gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, window.theme.buttoncolor), ColorSequenceKeypoint.new(1.00, window.theme.buttoncolor2) })
 
                 toggle.Label = Instance.new("TextButton", toggle.Main)
                 toggle.Label.Name = "Label"
@@ -840,7 +892,7 @@ function library:CreateWindow(name, size, hidebutton)
                 toggle.CheckedFrame = Instance.new("Frame", toggle.Main)
                 toggle.CheckedFrame.ZIndex = 5
                 toggle.CheckedFrame.BorderSizePixel = 0
-                toggle.CheckedFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Color3.fromRGB(204, 0, 102)
+                toggle.CheckedFrame.BackgroundColor3 = window.theme.accentcolor
                 toggle.CheckedFrame.Size = toggle.Main.Size
 
                 toggle.Gradient2 = Instance.new("UIGradient", toggle.CheckedFrame)
@@ -848,6 +900,7 @@ function library:CreateWindow(name, size, hidebutton)
                 toggle.Gradient2.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, window.theme.accentcolor2), ColorSequenceKeypoint.new(1.00, window.theme.accentcolor) })
                 updateevent.Event:Connect(function(theme)
                     toggle.Gradient2.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, theme.accentcolor2), ColorSequenceKeypoint.new(1.00, theme.accentcolor) })
+                    toggle.CheckedFrame.BackgroundColor3 = theme.accentcolor
                 end)
 
                 toggle.Items = Instance.new("Frame", toggle.Main)
