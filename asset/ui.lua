@@ -255,6 +255,7 @@ function library:CreateWindow(name, size, hidebutton)
     window.size = UDim2.fromOffset(size.X, size.Y) or UDim2.fromOffset(492, 598)
     window.hidebutton = hidebutton or Enum.KeyCode.RightShift
     window.theme = library.theme
+    window.sidebarWidth = 140
     table.insert(library.windows, window)
 
     local updateevent = Instance.new("BindableEvent")
@@ -375,6 +376,9 @@ function library:CreateWindow(name, size, hidebutton)
     updateevent.Event:Connect(function(theme)
         window.TopBar.Size = UDim2.fromOffset(window.size.X.Offset, theme.topheight)
         window.TopBar.BackgroundColor3 = theme.topcolor
+        if window.RefreshLayout then
+            window:RefreshLayout()
+        end
     end)
 
     window.TopGradient = Instance.new("UIGradient", window.TopBar)
@@ -410,35 +414,32 @@ function library:CreateWindow(name, size, hidebutton)
         window.Line2.BackgroundColor3 = theme.accentcolor
     end)
 
-    window.TabList = Instance.new("Frame", window.TopBar)
+    window.TabList = Instance.new("Frame", window.Frame)
     window.TabList.Name = "tablist"
     window.TabList.BackgroundTransparency = 0
-    window.TabList.Position = UDim2.fromOffset(0, window.TopBar.AbsoluteSize.Y / 2 + 1)
-    window.TabList.Size = UDim2.fromOffset(window.size.X.Offset, window.TopBar.AbsoluteSize.Y / 2)
+    window.TabList.Position = UDim2.fromOffset(0, window.TopBar.AbsoluteSize.Y)
+    window.TabList.Size = UDim2.fromOffset(window.sidebarWidth, window.size.Y.Offset - window.TopBar.AbsoluteSize.Y)
     window.TabList.BorderSizePixel = 0
     window.TabList.BackgroundColor3 = window.theme.topcolor
     updateevent.Event:Connect(function(theme)
         window.TabList.BackgroundColor3 = theme.topcolor
     end)
 
-    window.TabList.InputBegan:Connect(dragstart)
-    window.TabList.InputChanged:Connect(dragend)
-
     window.BlackLine = Instance.new("Frame", window.Frame)
     window.BlackLine.Name = "blackline"
-    window.BlackLine.Size = UDim2.fromOffset(window.size.X.Offset, 1)
+    window.BlackLine.Size = UDim2.fromOffset(1, window.size.Y.Offset - window.TopBar.AbsoluteSize.Y)
     window.BlackLine.BorderSizePixel = 0
     window.BlackLine.ZIndex = 9
     window.BlackLine.BackgroundColor3 = window.theme.outlinecolor2
-    window.BlackLine.Position = UDim2.fromOffset(0, window.TopBar.AbsoluteSize.Y)
+    window.BlackLine.Position = UDim2.fromOffset(window.sidebarWidth, window.TopBar.AbsoluteSize.Y)
     updateevent.Event:Connect(function(theme)
         window.BlackLine.BackgroundColor3 = theme.outlinecolor2
     end)
 
-    window.Line = Instance.new("Frame", window.Frame)
+    window.Line = Instance.new("Frame", window.TabList)
     window.Line.Name = "line"
-    window.Line.Position = UDim2.fromOffset(0, 0)
-    window.Line.Size = UDim2.fromOffset(60, 1)
+    window.Line.Position = UDim2.fromOffset(window.sidebarWidth - 2, 0)
+    window.Line.Size = UDim2.fromOffset(2, 20)
     window.Line.BorderSizePixel = 0
     window.Line.BackgroundColor3 = window.theme.accentcolor
     updateevent.Event:Connect(function(theme)
@@ -446,18 +447,36 @@ function library:CreateWindow(name, size, hidebutton)
     end)
 
     window.ListLayout = Instance.new("UIListLayout", window.TabList)
-    window.ListLayout.FillDirection = Enum.FillDirection.Horizontal
+    window.ListLayout.FillDirection = Enum.FillDirection.Vertical
     window.ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    window.ListLayout.Padding = UDim.new(0, 6)
+
+    function window:RefreshLayout()
+        local topH = window.TopBar.Size.Y.Offset
+        local sidebar = window.sidebarWidth
+        local contentWidth = window.size.X.Offset - sidebar - 12
+
+        window.TabList.Position = UDim2.fromOffset(0, topH)
+        window.TabList.Size = UDim2.fromOffset(sidebar, window.size.Y.Offset - topH)
+
+        window.BlackLine.Position = UDim2.fromOffset(sidebar, topH)
+        window.BlackLine.Size = UDim2.fromOffset(1, window.size.Y.Offset - topH)
+
+        for _, t in ipairs(window.Tabs) do
+            t.Left.Size = UDim2.fromOffset(contentWidth / 2, window.size.Y.Offset - topH)
+            t.Left.Position = UDim2.fromOffset(sidebar + 6, topH)
+            t.Right.Size = UDim2.fromOffset(contentWidth / 2, window.size.Y.Offset - topH)
+            t.Right.Position = t.Left.Position + UDim2.fromOffset(t.Left.AbsoluteSize.X, 0)
+        end
+    end
 
     window.OpenedColorPickers = { }
     window.Tabs = { }
+    window:RefreshLayout()
 
     function window:CreateTab(name)
         local tab = { }
         tab.name = name or ""
-
-        local textservice = game:GetService("TextService")
-        local size = textservice:GetTextSize(tab.name, window.theme.fontsize, window.theme.font, Vector2.new(200,300))
 
         tab.TabButton = Instance.new("TextButton", window.TabList)
         tab.TabButton.TextColor3 = window.theme.tabstextcolor
@@ -465,29 +484,31 @@ function library:CreateWindow(name, size, hidebutton)
         tab.TabButton.AutoButtonColor = false
         tab.TabButton.Font = window.theme.font
         tab.TabButton.TextYAlignment = Enum.TextYAlignment.Center
+        tab.TabButton.TextXAlignment = Enum.TextXAlignment.Left
         tab.TabButton.BackgroundTransparency = 1
         tab.TabButton.BorderSizePixel = 0
-        tab.TabButton.Size = UDim2.fromOffset(size.X + 15, window.TabList.AbsoluteSize.Y - 1)
+        tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 12, 28)
         tab.TabButton.Name = tab.name
         tab.TabButton.TextSize = window.theme.fontsize
         updateevent.Event:Connect(function(theme)
-            local size = textservice:GetTextSize(tab.name, theme.fontsize, theme.font, Vector2.new(200,300))
             tab.TabButton.TextColor3 = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.tabstextcolor
             tab.TabButton.Font = theme.font
-            tab.TabButton.Size = UDim2.fromOffset(size.X + 15, window.TabList.AbsoluteSize.Y - 1)
+            tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 12, 28)
             tab.TabButton.TextSize = theme.fontsize
         end)
+
+        local contentWidth = window.size.X.Offset - window.sidebarWidth - 12
 
         tab.Left = Instance.new("ScrollingFrame", window.Frame) 
         tab.Left.Name = "leftside"
         tab.Left.BorderSizePixel = 0
-        tab.Left.Size = UDim2.fromOffset(window.size.X.Offset / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y + 1))
+        tab.Left.Size = UDim2.fromOffset(contentWidth / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y))
         tab.Left.BackgroundTransparency = 0
         tab.Left.BackgroundColor3 = window.theme.topcolor
         tab.Left.Visible = false
         tab.Left.ScrollBarThickness = 0
         tab.Left.ScrollingDirection = "Y"
-        tab.Left.Position = window.BlackLine.Position + UDim2.fromOffset(0, 1)
+        tab.Left.Position = UDim2.fromOffset(window.sidebarWidth + 6, window.TopBar.AbsoluteSize.Y)
         updateevent.Event:Connect(function(theme)
             tab.Left.BackgroundColor3 = theme.topcolor
         end)
@@ -508,7 +529,7 @@ function library:CreateWindow(name, size, hidebutton)
         tab.Right.ScrollingDirection = "Y"
         tab.Right.Visible = false
         tab.Right.BorderSizePixel = 0
-        tab.Right.Size = UDim2.fromOffset(window.size.X.Offset / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y + 1))
+        tab.Right.Size = UDim2.fromOffset(contentWidth / 2, window.size.Y.Offset - (window.TopBar.AbsoluteSize.Y))
         tab.Right.BackgroundTransparency = 0
         tab.Right.BackgroundColor3 = window.theme.topcolor
         tab.Right.Position = tab.Left.Position + UDim2.fromOffset(tab.Left.AbsoluteSize.X, 0)
@@ -535,7 +556,7 @@ function library:CreateWindow(name, size, hidebutton)
             block = true
             for i,v in pairs(window.Tabs) do
                 if v ~= tab then
-                    v.TabButton.TextColor3 = Color3.fromRGB(230, 230, 230)
+                    v.TabButton.TextColor3 = window.theme.tabstextcolor
                     v.TabButton.Name = "Tab"
                     v.Left.Visible = false
                     v.Right.Visible = false
@@ -546,7 +567,8 @@ function library:CreateWindow(name, size, hidebutton)
             tab.TabButton.Name = "SelectedTab"
             tab.Right.Visible = true
             tab.Left.Visible = true
-            window.Line:TweenSizeAndPosition(UDim2.fromOffset(size.X + 15, 1), UDim2.new(0, (tab.TabButton.AbsolutePosition.X - window.Frame.AbsolutePosition.X), 0, 0) + (window.BlackLine.Position - UDim2.fromOffset(0, 1)), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15)
+            local targetY = tab.TabButton.AbsolutePosition.Y - window.TabList.AbsolutePosition.Y
+            window.Line:TweenSizeAndPosition(UDim2.fromOffset(2, tab.TabButton.AbsoluteSize.Y), UDim2.fromOffset(window.sidebarWidth - 2, targetY), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.15)
             wait(0.2)
             block = false
         end
@@ -3677,6 +3699,10 @@ function library:CreateWindow(name, size, hidebutton)
             return list
         end
         ]]--
+
+        if window.RefreshLayout then
+            window:RefreshLayout()
+        end
 
         table.insert(window.Tabs, tab)
         return tab
