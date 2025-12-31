@@ -501,8 +501,8 @@ function library:CreateWindow(name, size, hidebutton)
         tab.Highlight = Instance.new("Frame", tab.TabButton)
         tab.Highlight.Name = "highlight"
         tab.Highlight.AnchorPoint = Vector2.new(0, 0)
-        tab.Highlight.Position = UDim2.fromOffset(-4, 4)
-        tab.Highlight.Size = UDim2.new(0, 4, 1, -8)
+        tab.Highlight.Position = UDim2.fromOffset(-8, 4)
+        tab.Highlight.Size = UDim2.new(0, 3, 1, -8)
         tab.Highlight.BorderSizePixel = 0
         tab.Highlight.BackgroundColor3 = window.theme.accentcolor
         tab.Highlight.Visible = false
