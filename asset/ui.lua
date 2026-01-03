@@ -494,13 +494,34 @@ function library:CreateWindow(name, size, hidebutton)
         tab.TabButton.TextXAlignment = Enum.TextXAlignment.Left
         tab.TabButton.BackgroundTransparency = 0
         tab.TabButton.BorderSizePixel = 0
-        tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 24, 32)
+        tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 20, 38)
         tab.TabButton.Name = tab.name
         tab.TabButton.TextSize = window.theme.fontsize
         tab.TabButton.BackgroundColor3 = window.theme.navcolor
         tab.TabPadding = Instance.new("UIPadding", tab.TabButton)
-        tab.TabPadding.PaddingLeft = UDim.new(0, 16)
-        tab.TabPadding.PaddingRight = UDim.new(0, 10)
+        tab.TabPadding.PaddingLeft = UDim.new(0, 22)
+        tab.TabPadding.PaddingRight = UDim.new(0, 12)
+
+        tab.TabCorner = Instance.new("UICorner", tab.TabButton)
+        tab.TabCorner.CornerRadius = UDim.new(0, 10)
+
+        tab.TabStroke = Instance.new("UIStroke", tab.TabButton)
+        tab.TabStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        tab.TabStroke.LineJoinMode = Enum.LineJoinMode.Round
+        tab.TabStroke.Thickness = 1
+        tab.TabStroke.Color = window.theme.outlinecolor2
+        tab.TabStroke.Transparency = 0.55
+
+        tab.ActiveStripe = Instance.new("Frame", tab.TabButton)
+        tab.ActiveStripe.Name = "ActiveStripe"
+        tab.ActiveStripe.BorderSizePixel = 0
+        tab.ActiveStripe.BackgroundColor3 = window.theme.accentcolor
+        tab.ActiveStripe.Position = UDim2.new(0, 8, 0, 6)
+        tab.ActiveStripe.Size = UDim2.new(0, 3, 1, -12)
+        tab.ActiveStripe.Visible = false
+        tab.ActiveStripe.ZIndex = 0
+        tab.ActiveStripeCorner = Instance.new("UICorner", tab.ActiveStripe)
+        tab.ActiveStripeCorner.CornerRadius = UDim.new(1, 0)
 
         tab.NavGradient = Instance.new("UIGradient", tab.TabButton)
         tab.NavGradient.Rotation = 90
@@ -513,25 +534,30 @@ function library:CreateWindow(name, size, hidebutton)
                 colorTop = window.theme.navactive2
                 colorBottom = window.theme.navactive
             elseif hovered then
-                colorTop = window.theme.navcolor2
-                colorBottom = window.theme.navhover
+                colorTop = window.theme.navhover
+                colorBottom = window.theme.navcolor
             else
                 colorTop = window.theme.navcolor2
                 colorBottom = window.theme.navcolor
             end
+            tab.ActiveStripe.Visible = selected
+            tab.TabStroke.Color = selected and window.theme.accentcolor or window.theme.outlinecolor
+            tab.TabStroke.Transparency = selected and 0.15 or hovered and 0.3 or 0.55
             tab.TabButton.BackgroundColor3 = colorBottom
             tab.NavGradient.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0, colorTop),
                 ColorSequenceKeypoint.new(1, colorBottom)
             })
-            tab.TabButton.TextColor3 = selected and window.theme.accentcolor or window.theme.navtext
+            tab.TabButton.TextColor3 = selected and window.theme.accentcolor or hovered and window.theme.itemscolor2 or window.theme.navtext
         end
 
         updateevent.Event:Connect(function(theme)
             tab.TabButton.TextColor3 = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.navtext
             tab.TabButton.Font = theme.font
-            tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 24, 32)
+            tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 20, 38)
             tab.TabButton.TextSize = theme.fontsize
+            tab.TabStroke.Color = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.outlinecolor
+            tab.ActiveStripe.BackgroundColor3 = theme.accentcolor
             applyTabVisual(tab.TabButton.Name == "SelectedTab", false)
         end)
         tab.TabButton.AutoButtonColor = false
@@ -548,6 +574,7 @@ function library:CreateWindow(name, size, hidebutton)
         end)
 
         tab.applyTabVisual = applyTabVisual
+        applyTabVisual(false, false)
 
         local contentWidth = window.size.X.Offset - window.sidebarWidth - 12
 
