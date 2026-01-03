@@ -22,32 +22,32 @@ local camera = game.Workspace.CurrentCamera
 -- Color palette system (edit once, everything derives from here)
 local palette = {
     base = {
-        background = Color3.fromRGB(28, 28, 36),   -- main canvas matches titlebar
-        top        = Color3.fromRGB(28, 28, 36),   -- titlebar
-        topAlt     = Color3.fromRGB(28, 28, 36),   -- no gradient difference
-        surface    = Color3.fromRGB(30, 30, 38),   -- panels/sectors
-        shadow     = Color3.fromRGB(16, 16, 24),   -- soft shadow
-        nav        = Color3.fromRGB(22, 22, 30),   -- sidebar
-        nav2       = Color3.fromRGB(26, 26, 36),   -- sidebar gradient start
-        navHover   = Color3.fromRGB(32, 32, 44),   -- hover state
-        navActive  = Color3.fromRGB(42, 38, 56),   -- selected tab
-        navActive2 = Color3.fromRGB(48, 44, 60),   -- selected gradient start
+        background = Color3.fromRGB(14, 16, 20),   -- main canvas matches titlebar
+        top        = Color3.fromRGB(12, 14, 18),   -- titlebar
+        topAlt     = Color3.fromRGB(12, 14, 18),   -- no gradient difference
+        surface    = Color3.fromRGB(22, 24, 30),   -- panels/sectors
+        shadow     = Color3.fromRGB(6, 6, 10),     -- soft shadow
+        nav        = Color3.fromRGB(16, 18, 24),   -- sidebar
+        nav2       = Color3.fromRGB(18, 20, 26),   -- sidebar gradient start
+        navHover   = Color3.fromRGB(24, 26, 34),   -- hover state
+        navActive  = Color3.fromRGB(28, 30, 38),   -- selected tab
+        navActive2 = Color3.fromRGB(32, 34, 42),   -- selected gradient start
     },
     text = {
-        primary = Color3.fromRGB(235, 235, 245),
-        muted   = Color3.fromRGB(190, 190, 205),
+        primary = Color3.fromRGB(232, 236, 242),
+        muted   = Color3.fromRGB(170, 178, 192),
     },
     accent = {
-        primary   = Color3.fromRGB(155, 120, 255),
-        secondary = Color3.fromRGB(185, 150, 255),
+        primary   = Color3.fromRGB(102, 194, 255),
+        secondary = Color3.fromRGB(130, 214, 255),
     },
     outline = {
-        strong = Color3.fromRGB(60, 48, 82),
-        soft   = Color3.fromRGB(18, 18, 26),
+        strong = Color3.fromRGB(48, 58, 72),
+        soft   = Color3.fromRGB(28, 32, 40),
     },
     control = {
-        button      = Color3.fromRGB(35, 32, 48),
-        buttonHover = Color3.fromRGB(48, 44, 64),
+        button      = Color3.fromRGB(26, 28, 36),
+        buttonHover = Color3.fromRGB(32, 36, 44),
     },
     assets = {
         backgroundId = "rbxassetid://5553946656",
@@ -101,7 +101,7 @@ local function buildThemeFromPalette(p)
         buttoncolor = p.control.button,
         buttoncolor2 = p.control.buttonHover,
 
-        cornersize = 10,
+        cornersize = 0,
         topheight = 48,
     }
 end
@@ -526,77 +526,34 @@ function library:CreateWindow(name, size, hidebutton)
         tab.TabButton.Font = window.theme.font
         tab.TabButton.TextYAlignment = Enum.TextYAlignment.Center
         tab.TabButton.TextXAlignment = Enum.TextXAlignment.Left
-        tab.TabButton.BackgroundTransparency = 0
+        tab.TabButton.BackgroundTransparency = 1
         tab.TabButton.BorderSizePixel = 0
-        tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 20, 38)
+        tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 24, 26)
         tab.TabButton.Name = tab.name
         tab.TabButton.TextSize = window.theme.fontsize
         tab.TabButton.BackgroundColor3 = window.theme.navcolor
         tab.TabPadding = Instance.new("UIPadding", tab.TabButton)
-        tab.TabPadding.PaddingLeft = UDim.new(0, 22)
-        tab.TabPadding.PaddingRight = UDim.new(0, 12)
-
-        tab.TabCorner = Instance.new("UICorner", tab.TabButton)
-        tab.TabCorner.CornerRadius = UDim.new(0, 10)
-
-        tab.TabStroke = Instance.new("UIStroke", tab.TabButton)
-        tab.TabStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-        tab.TabStroke.LineJoinMode = Enum.LineJoinMode.Round
-        tab.TabStroke.Thickness = 1
-        tab.TabStroke.Color = window.theme.outlinecolor2
-        tab.TabStroke.Transparency = 0.55
-
-        tab.ActiveStripe = Instance.new("Frame", tab.TabButton)
-        tab.ActiveStripe.Name = "ActiveStripe"
-        tab.ActiveStripe.BorderSizePixel = 0
-        tab.ActiveStripe.BackgroundColor3 = window.theme.accentcolor
-        tab.ActiveStripe.Position = UDim2.new(0, 8, 0, 6)
-        tab.ActiveStripe.Size = UDim2.new(0, 3, 1, -12)
-        tab.ActiveStripe.Visible = false
-        tab.ActiveStripe.ZIndex = 0
-        tab.ActiveStripeCorner = Instance.new("UICorner", tab.ActiveStripe)
-        tab.ActiveStripeCorner.CornerRadius = UDim.new(1, 0)
-
-        tab.NavGradient = Instance.new("UIGradient", tab.TabButton)
-        tab.NavGradient.Rotation = 90
+        tab.TabPadding.PaddingLeft = UDim.new(0, 8)
+        tab.TabPadding.PaddingRight = UDim.new(0, 8)
         tab.selected = false
 
         local function applyTabVisual(selected, hovered)
             tab.selected = selected
-            local colorTop, colorBottom
-            if selected then
-                colorTop = window.theme.navactive2
-                colorBottom = window.theme.navactive
-            elseif hovered then
-                colorTop = window.theme.navhover
-                colorBottom = window.theme.navcolor
-            else
-                colorTop = window.theme.navcolor2
-                colorBottom = window.theme.navcolor
-            end
-            tab.ActiveStripe.Visible = selected
-            tab.TabStroke.Color = selected and window.theme.accentcolor or window.theme.outlinecolor
-            tab.TabStroke.Transparency = selected and 0.15 or hovered and 0.3 or 0.55
-            tab.TabButton.BackgroundColor3 = colorBottom
-            tab.NavGradient.Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, colorTop),
-                ColorSequenceKeypoint.new(1, colorBottom)
-            })
-            tab.TabButton.TextColor3 = selected and window.theme.accentcolor or hovered and window.theme.itemscolor2 or window.theme.navtext
+            tab.TabButton.BackgroundTransparency = 1
+            tab.TabButton.TextColor3 = selected and window.theme.accentcolor
+                or hovered and window.theme.itemscolor2
+                or window.theme.navtext
         end
 
         updateevent.Event:Connect(function(theme)
             tab.TabButton.TextColor3 = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.navtext
             tab.TabButton.Font = theme.font
-            tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 20, 38)
+            tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 24, 26)
             tab.TabButton.TextSize = theme.fontsize
-            tab.TabStroke.Color = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.outlinecolor
-            tab.ActiveStripe.BackgroundColor3 = theme.accentcolor
-            tab.TabCorner.CornerRadius = UDim.new(0, theme.cornersize or 10)
             applyTabVisual(tab.TabButton.Name == "SelectedTab", false)
         end)
         tab.TabButton.AutoButtonColor = false
-        tab.TabButton.BackgroundTransparency = 0
+        tab.TabButton.BackgroundTransparency = 1
         tab.TabButton.MouseEnter:Connect(function()
             if tab.TabButton.Name ~= "SelectedTab" then
                 applyTabVisual(false, true)
