@@ -22,32 +22,32 @@ local camera = game.Workspace.CurrentCamera
 -- Color palette system (edit once, everything derives from here)
 local palette = {
     base = {
-        background = Color3.fromRGB(14, 16, 20),   -- main canvas matches titlebar
-        top        = Color3.fromRGB(12, 14, 18),   -- titlebar
-        topAlt     = Color3.fromRGB(12, 14, 18),   -- no gradient difference
-        surface    = Color3.fromRGB(22, 24, 30),   -- panels/sectors
-        shadow     = Color3.fromRGB(6, 6, 10),     -- soft shadow
-        nav        = Color3.fromRGB(16, 18, 24),   -- sidebar
-        nav2       = Color3.fromRGB(18, 20, 26),   -- sidebar gradient start
-        navHover   = Color3.fromRGB(24, 26, 34),   -- hover state
-        navActive  = Color3.fromRGB(28, 30, 38),   -- selected tab
-        navActive2 = Color3.fromRGB(32, 34, 42),   -- selected gradient start
+        background = Color3.fromRGB(18, 20, 24),   -- main canvas matches titlebar
+        top        = Color3.fromRGB(16, 18, 22),   -- titlebar
+        topAlt     = Color3.fromRGB(22, 24, 28),   -- gentle gradient
+        surface    = Color3.fromRGB(26, 28, 34),   -- panels/sectors
+        shadow     = Color3.fromRGB(8, 10, 14),    -- soft shadow
+        nav        = Color3.fromRGB(18, 20, 26),   -- sidebar
+        nav2       = Color3.fromRGB(20, 22, 28),   -- sidebar gradient start
+        navHover   = Color3.fromRGB(26, 28, 34),   -- hover state
+        navActive  = Color3.fromRGB(30, 32, 38),   -- selected tab
+        navActive2 = Color3.fromRGB(34, 36, 42),   -- selected gradient start
     },
     text = {
-        primary = Color3.fromRGB(232, 236, 242),
-        muted   = Color3.fromRGB(170, 178, 192),
+        primary = Color3.fromRGB(234, 238, 244),
+        muted   = Color3.fromRGB(176, 182, 194),
     },
     accent = {
-        primary   = Color3.fromRGB(102, 194, 255),
-        secondary = Color3.fromRGB(130, 214, 255),
+        primary   = Color3.fromRGB(106, 195, 230),
+        secondary = Color3.fromRGB(136, 214, 240),
     },
     outline = {
-        strong = Color3.fromRGB(48, 58, 72),
-        soft   = Color3.fromRGB(28, 32, 40),
+        strong = Color3.fromRGB(54, 64, 76),
+        soft   = Color3.fromRGB(30, 34, 42),
     },
     control = {
-        button      = Color3.fromRGB(26, 28, 36),
-        buttonHover = Color3.fromRGB(32, 36, 44),
+        button      = Color3.fromRGB(28, 30, 36),
+        buttonHover = Color3.fromRGB(34, 38, 46),
     },
     assets = {
         backgroundId = "rbxassetid://5553946656",
@@ -59,15 +59,15 @@ local palette = {
 local function buildThemeFromPalette(p)
     return {
         fontsize = 15,
-        titlesize = 18,
-        font = Enum.Font.Code,
+        titlesize = 19,
+        font = Enum.Font.GothamSemibold,
         background = p.assets.backgroundId,
         tilesize = p.assets.tileSize,
         cursor = false,
         cursorimg = p.assets.cursorImg,
 
         -- Unified main background (titlebar + overall UI)
-        backgroundcolor = p.base.top, -- force body to match titlebar
+        backgroundcolor = p.base.background,
         topcolor = p.base.top,
         topcolor2 = p.base.topAlt,
 
@@ -95,14 +95,14 @@ local function buildThemeFromPalette(p)
         navhover = p.base.navHover,
         navactive = p.base.navActive,
         navactive2 = p.base.navActive2,
-        navtext = Color3.fromRGB(210, 210, 225),
+        navtext = p.text.primary,
         
         -- Buttons
         buttoncolor = p.control.button,
         buttoncolor2 = p.control.buttonHover,
 
         cornersize = 0,
-        topheight = 48,
+        topheight = 46,
     }
 end
 
@@ -423,16 +423,31 @@ function library:CreateWindow(name, size, hidebutton)
         window.TopGradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0.00, theme.topcolor), ColorSequenceKeypoint.new(1.00, theme.topcolor2) })
     end)
 
+    window.TitleAccent = Instance.new("Frame", window.TopBar)
+    window.TitleAccent.Name = "titleaccent"
+    window.TitleAccent.BorderSizePixel = 0
+    window.TitleAccent.BackgroundColor3 = window.theme.accentcolor
+    window.TitleAccent.BackgroundTransparency = 0.25
+    window.TitleAccent.Position = UDim2.new(0, 8, 0, 8)
+    window.TitleAccent.Size = UDim2.new(0, 3, 1, -16)
+    updateevent.Event:Connect(function(theme)
+        window.TitleAccent.BackgroundColor3 = theme.accentcolor
+    end)
+
     window.NameLabel = Instance.new("TextLabel", window.TopBar)
     window.NameLabel.TextColor3 = window.theme.toptextcolor
     window.NameLabel.Text = window.name
     window.NameLabel.TextXAlignment = Enum.TextXAlignment.Left
     window.NameLabel.Font = window.theme.font
     window.NameLabel.Name = "title"
-    window.NameLabel.Position = UDim2.fromOffset(4, -2)
+    window.NameLabel.AnchorPoint = Vector2.new(0, 0.5)
+    window.NameLabel.Position = UDim2.new(0, 16, 0.5, 0)
     window.NameLabel.BackgroundTransparency = 1
-    window.NameLabel.Size = UDim2.fromOffset(190, window.TopBar.AbsoluteSize.Y / 2 - 2)
+    window.NameLabel.Size = UDim2.new(1, -40, 1, -8)
+    window.NameLabel.TextYAlignment = Enum.TextYAlignment.Center
     window.NameLabel.TextSize = window.theme.titlesize
+    window.NameLabel.TextStrokeTransparency = 0.7
+    window.NameLabel.TextTruncate = Enum.TextTruncate.AtEnd
     updateevent.Event:Connect(function(theme)
         window.NameLabel.TextColor3 = theme.toptextcolor
         window.NameLabel.Font = theme.font
@@ -441,10 +456,11 @@ function library:CreateWindow(name, size, hidebutton)
 
     window.Line2 = Instance.new("Frame", window.TopBar)
     window.Line2.Name = "line"
-    window.Line2.Position = UDim2.fromOffset(0, window.TopBar.AbsoluteSize.Y / 2.1)
-    window.Line2.Size = UDim2.fromOffset(window.size.X.Offset, 1)
+    window.Line2.Position = UDim2.new(0, 0, 1, -2)
+    window.Line2.Size = UDim2.new(1, 0, 0, 2)
     window.Line2.BorderSizePixel = 0
     window.Line2.BackgroundColor3 = window.theme.accentcolor
+    window.Line2.BackgroundTransparency = 0.35
     updateevent.Event:Connect(function(theme)
         window.Line2.BackgroundColor3 = theme.accentcolor
     end)
@@ -537,9 +553,18 @@ function library:CreateWindow(name, size, hidebutton)
         tab.TabPadding.PaddingRight = UDim.new(0, 8)
         tab.selected = false
 
+        tab.ActiveIndicator = Instance.new("Frame", tab.TabButton)
+        tab.ActiveIndicator.Name = "ActiveIndicator"
+        tab.ActiveIndicator.BorderSizePixel = 0
+        tab.ActiveIndicator.BackgroundColor3 = window.theme.accentcolor
+        tab.ActiveIndicator.Size = UDim2.new(0, 2, 1, 0)
+        tab.ActiveIndicator.Position = UDim2.new(0, 0, 0, 0)
+        tab.ActiveIndicator.Visible = false
+
         local function applyTabVisual(selected, hovered)
             tab.selected = selected
-            tab.TabButton.BackgroundTransparency = 1
+            tab.ActiveIndicator.Visible = selected
+            tab.TabButton.BackgroundTransparency = selected and 0.92 or hovered and 0.96 or 1
             tab.TabButton.TextColor3 = selected and window.theme.accentcolor
                 or hovered and window.theme.itemscolor2
                 or window.theme.navtext
@@ -550,6 +575,7 @@ function library:CreateWindow(name, size, hidebutton)
             tab.TabButton.Font = theme.font
             tab.TabButton.Size = UDim2.fromOffset(window.sidebarWidth - 24, 26)
             tab.TabButton.TextSize = theme.fontsize
+            tab.ActiveIndicator.BackgroundColor3 = theme.accentcolor
             applyTabVisual(tab.TabButton.Name == "SelectedTab", false)
         end)
         tab.TabButton.AutoButtonColor = false
