@@ -101,6 +101,7 @@ local function buildThemeFromPalette(p)
         buttoncolor = p.control.button,
         buttoncolor2 = p.control.buttonHover,
 
+        cornersize = 10,
         topheight = 48,
     }
 end
@@ -330,6 +331,12 @@ function library:CreateWindow(name, size, hidebutton)
         window.Frame.BackgroundColor3 = theme.topcolor
     end)
 
+    window.cornerRadius = UDim.new(0, window.theme.cornersize or 10)
+    window.CornerRefs = { }
+    window.FrameCorner = Instance.new("UICorner", window.Frame)
+    window.FrameCorner.CornerRadius = window.cornerRadius
+    table.insert(window.CornerRefs, window.FrameCorner)
+
     uis.InputBegan:Connect(function(key)
         if key.KeyCode == window.hidebutton then
             window.Frame.Visible = not window.Frame.Visible
@@ -353,9 +360,13 @@ function library:CreateWindow(name, size, hidebutton)
     window.BlackOutline.BorderSizePixel = 0
     window.BlackOutline.BackgroundColor3 = window.theme.outlinecolor2
     window.BlackOutline.Position = UDim2.fromOffset(-1, -1)
+    window.BlackOutline.BackgroundTransparency = 0.25
     updateevent.Event:Connect(function(theme)
         window.BlackOutline.BackgroundColor3 = theme.outlinecolor2
     end)
+    window.BlackOutlineCorner = Instance.new("UICorner", window.BlackOutline)
+    window.BlackOutlineCorner.CornerRadius = window.cornerRadius
+    table.insert(window.CornerRefs, window.BlackOutlineCorner)
 
     window.Outline = Instance.new("Frame", window.Frame)
     window.Outline.Name = "outline"
@@ -364,9 +375,13 @@ function library:CreateWindow(name, size, hidebutton)
     window.Outline.BorderSizePixel = 0
     window.Outline.BackgroundColor3 = window.theme.outlinecolor
     window.Outline.Position = UDim2.fromOffset(-2, -2)
+    window.Outline.BackgroundTransparency = 0.1
     updateevent.Event:Connect(function(theme)
         window.Outline.BackgroundColor3 = theme.outlinecolor
     end)
+    window.OutlineCorner = Instance.new("UICorner", window.Outline)
+    window.OutlineCorner.CornerRadius = window.cornerRadius
+    table.insert(window.CornerRefs, window.OutlineCorner)
 
     window.BlackOutline2 = Instance.new("Frame", window.Frame)
     window.BlackOutline2.Name = "outline"
@@ -375,9 +390,13 @@ function library:CreateWindow(name, size, hidebutton)
     window.BlackOutline2.BorderSizePixel = 0
     window.BlackOutline2.BackgroundColor3 = window.theme.outlinecolor2
     window.BlackOutline2.Position = UDim2.fromOffset(-3, -3)
+    window.BlackOutline2.BackgroundTransparency = 0.45
     updateevent.Event:Connect(function(theme)
         window.BlackOutline2.BackgroundColor3 = theme.outlinecolor2
     end)
+    window.BlackOutline2Corner = Instance.new("UICorner", window.BlackOutline2)
+    window.BlackOutline2Corner.CornerRadius = window.cornerRadius
+    table.insert(window.CornerRefs, window.BlackOutline2Corner)
 
     window.TopBar = Instance.new("Frame", window.Frame)
     window.TopBar.Name = "top"
@@ -393,6 +412,9 @@ function library:CreateWindow(name, size, hidebutton)
             window:RefreshLayout()
         end
     end)
+    window.TopCorner = Instance.new("UICorner", window.TopBar)
+    window.TopCorner.CornerRadius = window.cornerRadius
+    table.insert(window.CornerRefs, window.TopCorner)
 
     window.TopGradient = Instance.new("UIGradient", window.TopBar)
     window.TopGradient.Rotation = 90
@@ -437,6 +459,9 @@ function library:CreateWindow(name, size, hidebutton)
     updateevent.Event:Connect(function(theme)
         window.TabList.BackgroundColor3 = theme.navcolor
     end)
+    window.TabListCorner = Instance.new("UICorner", window.TabList)
+    window.TabListCorner.CornerRadius = window.cornerRadius
+    table.insert(window.CornerRefs, window.TabListCorner)
 
     window.BlackLine = Instance.new("Frame", window.Frame)
     window.BlackLine.Name = "blackline"
@@ -457,6 +482,15 @@ function library:CreateWindow(name, size, hidebutton)
     window.TabListPadding = Instance.new("UIPadding", window.TabList)
     window.TabListPadding.PaddingTop = UDim.new(0, 14)
     window.TabListPadding.PaddingLeft = UDim.new(0, 14)
+
+    updateevent.Event:Connect(function(theme)
+        window.cornerRadius = UDim.new(0, theme.cornersize or 10)
+        for _, corner in ipairs(window.CornerRefs) do
+            if corner then
+                corner.CornerRadius = window.cornerRadius
+            end
+        end
+    end)
 
     function window:RefreshLayout()
         local topH = window.TopBar.Size.Y.Offset
@@ -558,6 +592,7 @@ function library:CreateWindow(name, size, hidebutton)
             tab.TabButton.TextSize = theme.fontsize
             tab.TabStroke.Color = tab.TabButton.Name == "SelectedTab" and theme.accentcolor or theme.outlinecolor
             tab.ActiveStripe.BackgroundColor3 = theme.accentcolor
+            tab.TabCorner.CornerRadius = UDim.new(0, theme.cornersize or 10)
             applyTabVisual(tab.TabButton.Name == "SelectedTab", false)
         end)
         tab.TabButton.AutoButtonColor = false
@@ -676,6 +711,11 @@ function library:CreateWindow(name, size, hidebutton)
             updateevent.Event:Connect(function(theme)
                 sector.Main.BackgroundColor3 = theme.sectorcolor
             end)
+            sector.cornerRadius = UDim.new(0, window.theme.cornersize or 10)
+            sector.Corners = { }
+            sector.MainCorner = Instance.new("UICorner", sector.Main)
+            sector.MainCorner.CornerRadius = sector.cornerRadius
+            table.insert(sector.Corners, sector.MainCorner)
 
             sector.Line = Instance.new("Frame", sector.Main)
             sector.Line.Name = "line"
@@ -695,12 +735,16 @@ function library:CreateWindow(name, size, hidebutton)
             sector.BlackOutline.BorderSizePixel = 0
             sector.BlackOutline.BackgroundColor3 = window.theme.outlinecolor2
             sector.BlackOutline.Position = UDim2.fromOffset(-1, -1)
+            sector.BlackOutline.BackgroundTransparency = 0.35
             sector.Main:GetPropertyChangedSignal("Size"):Connect(function()
                 sector.BlackOutline.Size = sector.Main.Size + UDim2.fromOffset(2, 2)
             end)
             updateevent.Event:Connect(function(theme)
                 sector.BlackOutline.BackgroundColor3 = theme.outlinecolor2
             end)
+            sector.BlackOutlineCorner = Instance.new("UICorner", sector.BlackOutline)
+            sector.BlackOutlineCorner.CornerRadius = sector.cornerRadius
+            table.insert(sector.Corners, sector.BlackOutlineCorner)
 
 
             sector.Outline = Instance.new("Frame", sector.Main)
@@ -710,12 +754,16 @@ function library:CreateWindow(name, size, hidebutton)
             sector.Outline.BorderSizePixel = 0
             sector.Outline.BackgroundColor3 = window.theme.outlinecolor
             sector.Outline.Position = UDim2.fromOffset(-2, -2)
+            sector.Outline.BackgroundTransparency = 0.1
             sector.Main:GetPropertyChangedSignal("Size"):Connect(function()
                 sector.Outline.Size = sector.Main.Size + UDim2.fromOffset(4, 4)
             end)
             updateevent.Event:Connect(function(theme)
                 sector.Outline.BackgroundColor3 = theme.outlinecolor
             end)
+            sector.OutlineCorner = Instance.new("UICorner", sector.Outline)
+            sector.OutlineCorner.CornerRadius = sector.cornerRadius
+            table.insert(sector.Corners, sector.OutlineCorner)
 
             sector.BlackOutline2 = Instance.new("Frame", sector.Main)
             sector.BlackOutline2.Name = "outline"
@@ -724,11 +772,24 @@ function library:CreateWindow(name, size, hidebutton)
             sector.BlackOutline2.BorderSizePixel = 0
             sector.BlackOutline2.BackgroundColor3 = window.theme.outlinecolor2
             sector.BlackOutline2.Position = UDim2.fromOffset(-3, -3)
+            sector.BlackOutline2.BackgroundTransparency = 0.55
             sector.Main:GetPropertyChangedSignal("Size"):Connect(function()
                 sector.BlackOutline2.Size = sector.Main.Size + UDim2.fromOffset(6, 6)
             end)
             updateevent.Event:Connect(function(theme)
                 sector.BlackOutline2.BackgroundColor3 = theme.outlinecolor2
+            end)
+            sector.BlackOutline2Corner = Instance.new("UICorner", sector.BlackOutline2)
+            sector.BlackOutline2Corner.CornerRadius = sector.cornerRadius
+            table.insert(sector.Corners, sector.BlackOutline2Corner)
+
+            updateevent.Event:Connect(function(theme)
+                sector.cornerRadius = UDim.new(0, theme.cornersize or 10)
+                for _, corner in ipairs(sector.Corners) do
+                    if corner then
+                        corner.CornerRadius = sector.cornerRadius
+                    end
+                end
             end)
 
             local size = textservice:GetTextSize(sector.name, 15, window.theme.font, Vector2.new(2000, 2000))
